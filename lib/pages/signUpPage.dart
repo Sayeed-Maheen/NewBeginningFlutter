@@ -1,12 +1,51 @@
 import 'dart:ui';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:new_beginning/pages/homePage.dart';
-import 'package:new_beginning/util/customWidgets.dart';
-import 'package:new_beginning/util/routes.dart';
+import 'package:new_beginning/pages/infoForm.dart';
+// import 'package:new_beginning/util/customWidgets.dart';
+// import 'package:new_beginning/util/routes.dart';
 
-class SignUpPage extends StatelessWidget {
+class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
+
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  signUp() async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: _emailController.text, password: _passwordController.text);
+      var authCredential = userCredential.user;
+      print(authCredential!.uid);
+
+      if (authCredential.uid.isNotEmpty) {
+        Navigator.push(context, CupertinoPageRoute(builder: (_) => InfoForm()));
+      } else {
+        Fluttertoast.showToast(msg: "Something is wrong");
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        Fluttertoast.showToast(msg: "The password provided is too weak");
+      } else if (e.code == 'email-already-in-use') {
+        Fluttertoast.showToast(
+            msg: "The account already exists for that email");
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +94,7 @@ class SignUpPage extends StatelessWidget {
                           color: Color(0xffCBCBCB),
                           borderRadius: BorderRadius.circular(25)),
                       child: TextField(
+                        controller: _usernameController,
                         decoration: InputDecoration(
                           prefixIcon: Icon(
                             Icons.account_circle,
@@ -73,6 +113,7 @@ class SignUpPage extends StatelessWidget {
                           color: Color(0xffCBCBCB),
                           borderRadius: BorderRadius.circular(25)),
                       child: TextField(
+                        controller: _emailController,
                         decoration: InputDecoration(
                           prefixIcon: Icon(
                             Icons.mail,
@@ -91,6 +132,7 @@ class SignUpPage extends StatelessWidget {
                           color: Color(0xffCBCBCB),
                           borderRadius: BorderRadius.circular(25)),
                       child: TextField(
+                        controller: _passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           prefixIcon: Icon(
@@ -117,7 +159,7 @@ class SignUpPage extends StatelessWidget {
                             Icons.lock,
                             color: Color(0xff21243D),
                           ),
-                          hintText: "Password",
+                          hintText: "Confirm password",
                           suffixIcon: Icon(Icons.visibility_off),
                           border: InputBorder.none,
                         ),
@@ -125,11 +167,8 @@ class SignUpPage extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomePage()));
+                      onTap: () async {
+                        signUp();
                       },
                       child: Container(
                         height: 50.0,

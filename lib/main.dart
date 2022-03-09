@@ -1,12 +1,16 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:new_beginning/pages/homePage.dart';
+import 'package:new_beginning/pages/infoForm.dart';
 import 'package:new_beginning/pages/logInPage.dart';
 import 'package:new_beginning/pages/signUpPage.dart';
 import 'package:new_beginning/pages/splashScreen.dart';
 import 'package:new_beginning/util/routes.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -28,6 +32,7 @@ class MyApp extends StatelessWidget {
         MyRoutes.loginRoute: (context) => LoginPage(),
         MyRoutes.signupRoute: (context) => SignUpPage(),
         MyRoutes.splashRoute: (context) => SplashScreen(),
+        MyRoutes.infoRoute: (context) => InfoForm(),
       },
     );
   }

@@ -1,18 +1,52 @@
 import 'dart:ui';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:new_beginning/pages/homePage.dart';
 import 'package:new_beginning/pages/signUpPage.dart';
 import 'package:new_beginning/util/customWidgets.dart';
-import 'package:new_beginning/util/routes.dart';
+// import 'package:new_beginning/util/routes.dart';
 
 //import '../main.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
-  // final bool _value = false;
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
 
+class _LoginPageState extends State<LoginPage> {
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  logIn() async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: _emailController.text, password: _passwordController.text);
+      var authCredential = userCredential.user;
+      print(authCredential!.uid);
+
+      if (authCredential.uid.isNotEmpty) {
+        Navigator.push(context, CupertinoPageRoute(builder: (_) => HomePage()));
+      } else {
+        Fluttertoast.showToast(msg: "Something is wrong");
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        Fluttertoast.showToast(msg: "No user found for that email");
+      } else if (e.code == 'wrong-password') {
+        Fluttertoast.showToast(msg: "Wrong password provided for that user");
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  // final bool _value = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,6 +92,7 @@ class LoginPage extends StatelessWidget {
                         color: Color(0xffCBCBCB),
                         borderRadius: BorderRadius.circular(25)),
                     child: TextField(
+                      controller: _emailController,
                       decoration: InputDecoration(
                         prefixIcon: Icon(
                           Icons.mail,
@@ -76,6 +111,7 @@ class LoginPage extends StatelessWidget {
                         color: Color(0xffCBCBCB),
                         borderRadius: BorderRadius.circular(25)),
                     child: TextField(
+                      controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         prefixIcon: Icon(
@@ -102,8 +138,7 @@ class LoginPage extends StatelessWidget {
                   SizedBox(height: 50),
                   InkWell(
                     onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => HomePage()));
+                      logIn();
                     },
                     child: Container(
                       height: 50.0,
