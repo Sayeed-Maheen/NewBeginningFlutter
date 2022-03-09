@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:new_beginning/pages/homePage.dart';
+import 'package:new_beginning/pages/signUpPage.dart';
 import 'package:new_beginning/util/customWidgets.dart';
 import 'package:new_beginning/util/routes.dart';
 
@@ -135,8 +136,10 @@ class LoginPage extends StatelessWidget {
                 ),
                 TextButton(
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => HomePage()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SignUpPage()));
                     },
                     child: Text(
                       "Sign up",
